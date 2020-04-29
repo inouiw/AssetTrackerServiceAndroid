@@ -12,10 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".FirebaseUIActivity"
-            android:label="@string/title_activity_firebase_u_i"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <service
             android:name=".TrackerService"

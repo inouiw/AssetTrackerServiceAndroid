@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private DocumentReference thisDeviceDocRef;
-    private Boolean isAuthenticated;
+    private DocumentReference thisDeviceDocRef = null;
+    private Boolean isAuthenticated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
