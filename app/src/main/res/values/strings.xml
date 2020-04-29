@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Transport Tracker</string>
+    <string name="notification_text">Tracking, tap to cancel</string>
+    <string name="title_activity_firebase_u_i">FirebaseUIActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+</resources>
