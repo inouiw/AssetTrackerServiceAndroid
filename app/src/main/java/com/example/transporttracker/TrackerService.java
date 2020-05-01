@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.Manifest;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -19,37 +20,35 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.firebase.firestore.DocumentReference;
 
-import com.example.transporttracker.Entities.LocationMeasurement;
+import com.example.transporttracker.Entities.MeasurementDoc;
 
 
 public class TrackerService extends Service {
-
     private static final String TAG = TrackerService.class.getSimpleName();
 
-    private DocumentReference thisDeviceDocRef;
+    private FirebaseHelper firebaseHelper = null;
 
-    private String appName() { return getString(R.string.app_name); }
+    private String appName() {
+        return getString(R.string.app_name);
+    }
 
     @Override
-    public IBinder onBind(Intent intent) {return null;}
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        thisDeviceDocRef = Helper.getFirestoreDocumentForThisDevice();
+        Thread.setDefaultUncaughtExceptionHandler((t, ex) -> logToDatabase(true, "Uncaught exception: " + ex.toString()));
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable ex) {
-                logToDatabase(true,"Uncaught exception: " + ex.toString());
-            }
+        FirebaseHelper.create(this).addOnSuccessListener(firebaseHelperInstance -> {
+            firebaseHelper = firebaseHelperInstance;
+            buildNotification();
+            requestLocationUpdates();
         });
-        buildNotification();
-        requestLocationUpdates();
     }
 
     private void onLocationUpdate(@NonNull Location location) {
@@ -57,17 +56,9 @@ public class TrackerService extends Service {
     }
 
     private void saveLocation(@NonNull Location location) {
-        DocumentReference measurementDocRef = thisDeviceDocRef.collection("loc-data").document(Long.toString(location.getTime()));
-
-        LocationMeasurement lm = new LocationMeasurement(location.getTime(), location.getLatitude(), location.getLongitude(), location.getSpeed(),
+        MeasurementDoc lm = new MeasurementDoc(location.getTime(), location.getLatitude(), location.getLongitude(), location.getSpeed(),
                 location.getBearing(), location.getAccuracy());
-
-        measurementDocRef.set(lm).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                logToDatabase(true, "Error saving document " + e.toString());
-            }
-        });
+        firebaseHelper.saveDoc("/measurements/" + location.getTime(), lm);
     }
 
     private void buildNotification() {
@@ -117,8 +108,8 @@ public class TrackerService extends Service {
         }
     }
 
-    private void logToDatabase(Boolean isError, @NonNull String msg) {
-        Helper.logToDatabase(TAG, thisDeviceDocRef, isError, msg);
+    private void logToDatabase(@NonNull Boolean isError, @NonNull String msg) {
+        firebaseHelper.logToDatabase(TAG, isError, msg);
     }
 
 }

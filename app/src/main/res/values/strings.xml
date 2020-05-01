@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Transport Tracker</string>
+    <string name="app_name">Asset Tracker</string>
     <string name="notification_text">Tracking, tap to cancel</string>
     <string name="title_activity_firebase_u_i">FirebaseUIActivity</string>
     <!-- Strings used for fragments for navigation -->

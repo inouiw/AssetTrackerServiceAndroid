@@ -1,6 +1,7 @@
 package com.example.transporttracker.Entities;
 
-public class LocationMeasurement {
+// The measurement document as stored in firebase.
+public class MeasurementDoc {
     private long time = 0;
     private double latitude = 0.0;
     private double longitude = 0.0;
@@ -10,7 +11,7 @@ public class LocationMeasurement {
     // horizontal accuracy, radio, in meters with 68% confidence
     private float horizontalAccuracyMeters = 0.0f;
 
-    public LocationMeasurement(long time, double latitude, double longitude, float speed, float bearing, float horizontalAccuracyMeters) {
+    public MeasurementDoc(long time, double latitude, double longitude, float speed, float bearing, float horizontalAccuracyMeters) {
         this.time = time;
         this.latitude = latitude;
         this.longitude = longitude;
