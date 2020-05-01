@@ -17,8 +17,9 @@ The full location history is available for live or deferred analysis.
  1. Copy the downloaded google-services.json to the /app folder.
  1. Open the project in Android Studio.
  1. Connect your android device with a usb cable.
- 1. Click Run or click Debug. The app will be compiled and be installed on your phone. A bus icon appears in the status bar to indicate that the app is running. Click it to stop the app.
+ 1. Click Run or click Debug. The app will be compiled and be installed on your phone.
  1. The app will ask you to log-in with your google account. This is only required the first time the app starts. Even after a reboot you do not need to log-in again.
+ 1. A bus icon appears in the status bar to indicate that the service is running. Click it to stop the app.
  
  ## Accessing the location data
  To see the generated data, login to the firebase account (see above) then navigate to Database and open the Data tab. You can access the Google Firestore database from android, iPhone
