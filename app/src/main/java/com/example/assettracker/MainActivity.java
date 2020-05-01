@@ -1,4 +1,4 @@
-package com.example.transporttracker;
+package com.example.assettracker;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,13 +10,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
@@ -67,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             log(false, "Show 'Please enable GPS location services' toast.");
-            Toast.makeText(this, "Please enable GPS location services", Toast.LENGTH_SHORT).show();
-            finish();
+            Toast.makeText(this, "Please enable GPS location services", Toast.LENGTH_LONG).show();
+            return;
         }
         // Check location permission is granted - if it is, start
         // the service, otherwise request the permission
@@ -110,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             log(false, "Location access permission not granted. requestCode: " + requestCode
                     + ", grantResults.length: " + grantResults.length + ", grantResults[0]: "
                     + (grantResults.length == 0 ? "" : grantResults[0]));
-            finish();
+            Toast.makeText(this, "Requesting location permission failed", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -126,9 +124,18 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // Sign in failed. If response is null the user canceled the sign-in flow using the back button.
                 // Otherwise check response.getError().getErrorCode() and handle the error.
-                String resAsStr = response == null ? "response: null" : response.getError() == null
+                // If you get here and the user did not cancel check logcat output. I got the message:
+                //   "GoogleSignInHandler: Developer error: this application is misconfigured. Check your SHA1 and package name in the Firebase console."
+                //   See README.md for how to add the SHA certificate fingerprint.
+                String msg = "Sign in failed. resultCode: " + resultCode ;
+                msg += ", " + response == null ? "response: null" : response.getError() == null
                         ? "response.getError(): null" : "response errorCode: " + response.getError().getErrorCode();
-                log(true, "Sign in failed. resultCode: " + resultCode + ", " + resAsStr);
+
+                // Example: "Code: 10, message: 10: " See CommonStatusCodes enum for meaning.
+                msg += response.getError() == null ? "" : ", " + response.getError().getMessage();
+
+                log(true, msg);
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             }
         }
     }

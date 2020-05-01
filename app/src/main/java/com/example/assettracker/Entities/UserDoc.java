@@ -1,4 +1,4 @@
-package com.example.transporttracker.Entities;
+package com.example.assettracker.Entities;
 
 // The User document as stored in firebase.
 public class UserDoc {

@@ -1,4 +1,4 @@
-package com.example.transporttracker.Entities;
+package com.example.assettracker.Entities;
 
 // The measurement document as stored in firebase.
 public class MeasurementDoc {

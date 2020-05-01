@@ -1,4 +1,4 @@
-package com.example.transporttracker;
+package com.example.assettracker;
 
 import android.app.Service;
 import android.content.Intent;
@@ -21,7 +21,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
-import com.example.transporttracker.Entities.MeasurementDoc;
+import com.example.assettracker.Entities.MeasurementDoc;
 
 
 public class TrackerService extends Service {

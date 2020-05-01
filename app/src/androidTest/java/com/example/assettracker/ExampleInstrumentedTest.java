@@ -1,4 +1,4 @@
-package com.example.transporttracker;
+package com.example.assettracker;
 
 import android.content.Context;
 

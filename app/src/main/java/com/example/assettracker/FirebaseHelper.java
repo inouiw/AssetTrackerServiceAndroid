@@ -1,16 +1,13 @@
-package com.example.transporttracker;
+package com.example.assettracker;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,7 +16,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -27,7 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.example.transporttracker.Entities.UserDoc;
+import com.example.assettracker.Entities.UserDoc;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -97,9 +93,6 @@ public class FirebaseHelper {
     @NotNull
     private Task<Void> saveDoc(@NonNull DocumentReference docRef, @NonNull Object data) {
         return docRef.set(data).addOnFailureListener(createFailureListener("saveDoc"));
-//                .addOnSuccessListener(aVoid -> {
-//                    Log.i(TAG, "save success");
-//                });
     }
 
     @NotNull
@@ -127,7 +120,7 @@ public class FirebaseHelper {
                 FirebaseFirestoreException fex = (FirebaseFirestoreException) e;
                 String exCodeName = fex.getCode().name(); // eg: PERMISSION_DENIED or UNAVAILABLE
                 String appName = context.getString(R.string.app_name);
-                makeToast(String.format("%s: %s error when accessing firebase from %s.", appName, exCodeName, callerName));
+                showToast(String.format("%s: %s error when accessing firebase from %s.", appName, exCodeName, callerName));
             }
         };
     }
@@ -168,8 +161,12 @@ public class FirebaseHelper {
         saveDoc("/logs/" + new Date().getTime(), logMsg);
     }
 
+    public void showToast(final String message) {
+        showToast(context, message);
+    }
+
     // Toast needs to work from Activity and from Service and from background tasks of each.
-    public void makeToast(final String message) {
+    public static void showToast(final Context context, final String message) {
         new Thread(() -> {
             Handler handler = new Handler(context.getMainLooper());
             handler.post(() -> {

@@ -7,10 +7,13 @@ The full location history is available for live or deferred analysis.
 1. Install Android Studio.
 1. Clone or download this repository.
 1. Create a Firebase account because data is saved there. The free account is sufficient. See https://console.firebase.google.com
-    1. In Firebase crate a project, for example "asset-tracker".
+    1. In Firebase create a project, for example "asset-tracker".
     1. Navigate to Develop / Database  and open the Rules tab. There replace the line with `allow read, write ...` with `allow read, write: if request.auth.uid != null;` Click publish.
     1. Navigate to Authentication / Sign-in method and enable the Google sign-in provider.
-    1. Navigate to <img src="https://storage.googleapis.com/support-kms-prod/vMSwtm9y2uvHQAg2OfjmWpsBMtG4xwSIPWxh" width="22" heigth="22"> Project settings. There click on the android icon on the bottom. For Android package name enter "com.example.transporttracker" then click Register app and then click Download google-services.json.
+    1. Navigate to <img src="https://storage.googleapis.com/support-kms-prod/vMSwtm9y2uvHQAg2OfjmWpsBMtG4xwSIPWxh" width="22" heigth="22"> Project settings. There click on the android icon on the bottom. 
+        1. For Android package name enter "com.example.assettracker".
+        1. For Debug signing certificate SHA-1, enter the debug certificate SHA1 key. The command to get it is documented [here](https://developers.google.com/android/guides/client-auth). The SHA1 key is needed for Google Sign-in.
+        1. Click Register app and then click Download google-services.json.
  1. Copy the downloaded google-services.json to the /app folder.
  1. Open the project in Android Studio.
  1. Connect your android device with a usb cable.
