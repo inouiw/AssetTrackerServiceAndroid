@@ -1,7 +1,12 @@
 package com.example.assettracker;
 
+import android.annotation.TargetApi;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.IBinder;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -73,14 +78,34 @@ public class TrackerService extends Service {
         registerReceiver(stopReceiver, new IntentFilter(stop));
         PendingIntent broadcastIntent = PendingIntent.getBroadcast(
                 this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
+        String channelId = "";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            channelId = createNotificationChannel();
+        }
         // Create the persistent notification
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, appName().replace(" ", ""))
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.getApplicationContext(), channelId)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.notification_text))
                 .setOngoing(true)
                 .setContentIntent(broadcastIntent)
                 .setSmallIcon(R.drawable.ic_tracker);
         startForeground(1, notificationBuilder.build());
+    }
+
+    @NonNull
+    @TargetApi(26)
+    private synchronized String createNotificationChannel() {
+        final String channelId = "com.example.assettracker";
+        final String channelName = "Assettracker Background Service";
+        NotificationChannel mChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.BLUE);
+
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        assert notificationManager != null;
+        notificationManager.createNotificationChannel(mChannel);
+        return channelId;
     }
 
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
@@ -107,6 +132,7 @@ public class TrackerService extends Service {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
                     Location location = locationResult.getLastLocation();
+
                     if (location != null) {
                         onLocationUpdate(location);
                     }
