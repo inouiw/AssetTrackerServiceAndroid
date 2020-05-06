@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	match /users/{userId} {
+      allow read, delete: if request.auth.uid == userId;
+      allow create, update: if request.auth.uid == userId && request.auth.uid == request.resource.data.userId;
+    }
+    // Need to filter data while reading, see https://firebase.google.com/docs/firestore/security/rules-query
+    match /devices/{deviceId}/location-measurements/{locId} {
+      allow read, delete: if request.auth.uid == resource.data.createdBy;
+      // In the Playground request.resource.data.createdBy is not of type path even if reference type is used.
+      allow create: if request.resource.data.createdBy == path("databases/" + database + "/documents/users/" + request.auth.uid);
+    }
+    match /devices/{deviceId}/logs/{logId} {
+      allow read, delete: if request.auth.uid == resource.data.createdBy;
+      // In the Playground request.resource.data.createdBy is not of type path even if reference type is used.
+      allow create: if request.resource.data.createdBy == path("databases/" + database + "/documents/users/" + request.auth.uid);
+    }
+  }
+}

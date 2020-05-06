@@ -10,14 +10,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,13 +24,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private Boolean isAuthenticated = false;
     private FirebaseHelper firebaseHelper = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Thread.setDefaultUncaughtExceptionHandler((t, ex) -> log(true, "Uncaught exception: " + ex.toString()));
+        Thread.setDefaultUncaughtExceptionHandler((t, ex) -> logError("Uncaught exception: " + ex.toString()));
+        logInfo("App started.");
         checkUserIsAuthenticated();
     }
 
@@ -39,12 +38,12 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseHelper.getFirebaseUser();
 
         if (currentUser == null) {
-            log(false, "User not authenticated.");
+            logInfo("User not authenticated.");
             setContentView(R.layout.activity_firebase_u_i);
 
             // https://firebase.google.com/docs/auth/android/firebaseui#sign_in
             // Choose authentication providers
-            List<AuthUI.IdpConfig> providers = Arrays.asList(
+            List<AuthUI.IdpConfig> providers = Collections.singletonList(
                     new AuthUI.IdpConfig.GoogleBuilder().build());
 
             // Create and launch sign-in intent
@@ -63,9 +62,16 @@ public class MainActivity extends AppCompatActivity {
         // Check GPS is enabled
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
+        if (lm == null) {
+            String msg = "Error getting LOCATION_SERVICE.";
+            logInfo(msg);
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            return;
+        }
         if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            log(false, "Show 'Please enable GPS location services' toast.");
-            Toast.makeText(this, "Please enable GPS location services", Toast.LENGTH_LONG).show();
+            String msg = "Please enable GPS location services";
+            logInfo(String.format("Show toast '%s' toast.", msg));
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             return;
         }
         // Check location permission is granted - if it is, start
@@ -75,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         if (permission == PackageManager.PERMISSION_GRANTED) {
             onLocationAccessPermissionGraned();
         } else {
-            log(false, "Requesting location access permission.");
+            logInfo("Requesting location access permission.");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST);
@@ -88,8 +94,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onAuthenticated() {
-        isAuthenticated = true;
-        FirebaseHelper.create(this).addOnSuccessListener(firebaseHelperInstance -> {
+        FirebaseHelper.create(this.getApplicationContext()).addOnSuccessListener(firebaseHelperInstance -> {
             firebaseHelper = firebaseHelperInstance;
             checkLocationAccessPermissions();
         });
@@ -105,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             onLocationAccessPermissionGraned();
         } else {
-            log(false, "Location access permission not granted. requestCode: " + requestCode
+            logError("Location access permission not granted. requestCode: " + requestCode
                     + ", grantResults.length: " + grantResults.length + ", grantResults[0]: "
                     + (grantResults.length == 0 ? "" : grantResults[0]));
             Toast.makeText(this, "Requesting location permission failed", Toast.LENGTH_LONG).show();
@@ -129,27 +134,23 @@ public class MainActivity extends AppCompatActivity {
                 //   See README.md for how to add the SHA certificate fingerprint.
                 String msg = "Sign in failed. resultCode: " + resultCode ;
                 msg += ", " + response == null ? "response: null" : response.getError() == null
-                        ? "response.getError(): null" : "response errorCode: " + response.getError().getErrorCode();
+                        ? "response.getError(): null" : "response errorCode: " + response.getError().getErrorCode()
+                        + ", response Status: " + response.getError().getMessage(); // Example: "Code: 10, message: 10: " See CommonStatusCodes enum for meaning.
 
-                // Example: "Code: 10, message: 10: " See CommonStatusCodes enum for meaning.
-                msg += response.getError() == null ? "" : ", " + response.getError().getMessage();
-
-                log(true, msg);
+                logError(msg);
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    private void log(Boolean isError, @NonNull String msg) {
-        if (!isAuthenticated || !firebaseHelper.isInitialized()) {
-            if (isError) {
-                Log.e(TAG, msg);
-            } else {
-                Log.i(TAG, msg);
-            }
-        } else {
-            firebaseHelper.logToDatabase(TAG, isError, msg);
-        }
+    // Writes the message to the log and to the firestore database.
+    private void logInfo(@NonNull String msg) {
+        firebaseHelper.logInfo(TAG, msg);
+    }
+
+    // Writes the message to the log and to the firestore database.
+    private void logError(@NonNull String msg) {
+        firebaseHelper.logError(TAG, msg);
     }
 
 }

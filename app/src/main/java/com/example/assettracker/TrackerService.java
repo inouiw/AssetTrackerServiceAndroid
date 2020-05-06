@@ -22,6 +22,11 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
 import com.example.assettracker.Entities.MeasurementDoc;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.GeoPoint;
+
+import java.util.Date;
 
 
 public class TrackerService extends Service {
@@ -42,9 +47,10 @@ public class TrackerService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        Thread.setDefaultUncaughtExceptionHandler((t, ex) -> logToDatabase(true, "Uncaught exception: " + ex.toString()));
+        Thread.setDefaultUncaughtExceptionHandler((t, ex) -> logError("Uncaught exception: " + ex.toString()));
+        logInfo("Service started.");
 
-        FirebaseHelper.create(this).addOnSuccessListener(firebaseHelperInstance -> {
+        FirebaseHelper.create(this.getApplicationContext()).addOnSuccessListener(firebaseHelperInstance -> {
             firebaseHelper = firebaseHelperInstance;
             buildNotification();
             requestLocationUpdates();
@@ -56,9 +62,10 @@ public class TrackerService extends Service {
     }
 
     private void saveLocation(@NonNull Location location) {
-        MeasurementDoc lm = new MeasurementDoc(location.getTime(), location.getLatitude(), location.getLongitude(), location.getSpeed(),
+        Date locTime = new Date(location.getTime());
+        MeasurementDoc lm = new MeasurementDoc(new Timestamp(locTime), new GeoPoint(location.getLatitude(), location.getLongitude()), location.getSpeed(),
                 location.getBearing(), location.getAccuracy());
-        firebaseHelper.saveDoc("/measurements/" + location.getTime(), lm);
+        firebaseHelper.saveMeasurementDoc(lm);
     }
 
     private void buildNotification() {
@@ -79,7 +86,7 @@ public class TrackerService extends Service {
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            logToDatabase(false, "received stop broadcast");
+            logInfo("received stop broadcast");
             // Stop the service when the notification is tapped
             unregisterReceiver(stopReceiver);
             stopSelf();
@@ -108,8 +115,14 @@ public class TrackerService extends Service {
         }
     }
 
-    private void logToDatabase(@NonNull Boolean isError, @NonNull String msg) {
-        firebaseHelper.logToDatabase(TAG, isError, msg);
+    // Writes the message to the log and to the firestore database.
+    private void logInfo(@NonNull String msg) {
+        firebaseHelper.logInfo(TAG, msg);
+    }
+
+    // Writes the message to the log and to the firestore database.
+    private void logError(@NonNull String msg) {
+        firebaseHelper.logError(TAG, msg);
     }
 
 }

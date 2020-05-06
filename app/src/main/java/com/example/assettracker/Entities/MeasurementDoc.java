@@ -1,35 +1,34 @@
 package com.example.assettracker.Entities;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.GeoPoint;
+
 // The measurement document as stored in firebase.
 public class MeasurementDoc {
-    private long time = 0;
-    private double latitude = 0.0;
-    private double longitude = 0.0;
-    private float speed = 0.0f;
+    private Timestamp time;
+    private GeoPoint geoPoint;
+    private float speed;
     // horizontal direction of travel (0.0 - 360.0)
-    private float bearing = 0.0f;
+    private float bearing;
     // horizontal accuracy, radio, in meters with 68% confidence
-    private float horizontalAccuracyMeters = 0.0f;
+    private float horizontalAccuracyMeters;
+    private DocumentReference createdBy;
 
-    public MeasurementDoc(long time, double latitude, double longitude, float speed, float bearing, float horizontalAccuracyMeters) {
+    public MeasurementDoc(Timestamp time, GeoPoint geoPoint, float speed, float bearing, float horizontalAccuracyMeters) {
         this.time = time;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.geoPoint = geoPoint;
         this.speed = speed;
         this.bearing = bearing;
         this.horizontalAccuracyMeters = horizontalAccuracyMeters;
     }
 
-    public long getTime() {
+    public Timestamp getTime() {
         return time;
     }
 
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
     }
 
     public float getSpeed() {
@@ -42,5 +41,13 @@ public class MeasurementDoc {
 
     public float getHorizontalAccuracyMeters() {
         return horizontalAccuracyMeters;
+    }
+
+    public DocumentReference getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedByy(DocumentReference createdBy) {
+        this.createdBy = createdBy;
     }
 }
