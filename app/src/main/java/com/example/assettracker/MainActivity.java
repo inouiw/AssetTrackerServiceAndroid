@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startTrackerService() {
-        startService(new Intent(this, TrackerService.class));
+        ContextCompat.startForegroundService(this, new Intent(this, TrackerService.class));
         finish();
     }
 

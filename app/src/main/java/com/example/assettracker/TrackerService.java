@@ -90,6 +90,9 @@ public class TrackerService extends Service {
                 .setOngoing(true)
                 .setContentIntent(broadcastIntent)
                 .setSmallIcon(R.drawable.ic_tracker);
+        // "After the system has created the service, the app has five seconds to call the
+        // service's startForeground() method to show the new service's user-visible notification."
+        // See https://developer.android.com/about/versions/oreo/background.html
         startForeground(1, notificationBuilder.build());
     }
 

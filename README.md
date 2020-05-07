@@ -79,6 +79,12 @@ The security rules verify that the createdBy field refers to the logged-in user.
  - The app will not start automatically after a reboot. You need to click the app icon "Asset Tracker". 
  - If the internet connection is lost, the location is recorded on the device and synced once the connection is reestablished.
  
+## Screenshots
+<img src="screenshots/sign-in.png" style="width: 30em; margin-right: 20px" />
+<img src="screenshots/location-access.png" style="width: 30em; margin-right: 20px" />
+<img src="screenshots/notification-icon.png" style="width: 30em; margin-right: 20px" />
+<img src="screenshots/notification-text.png" style="width: 30em; margin-right: 20px" />
+<img src="screenshots/firebase.png" />
  
  ## Author
  David Neuy
