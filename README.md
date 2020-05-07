@@ -80,10 +80,10 @@ The security rules verify that the createdBy field refers to the logged-in user.
  - If the internet connection is lost, the location is recorded on the device and synced once the connection is reestablished.
  
 ## Screenshots
-<img src="screenshots/sign-in.png" style="width: 30em; margin-right: 20px" />
-<img src="screenshots/location-access.png" style="width: 30em; margin-right: 20px" />
-<img src="screenshots/notification-icon.png" style="width: 30em; margin-right: 20px" />
-<img src="screenshots/notification-text.png" style="width: 30em; margin-right: 20px" />
+<img src="screenshots/sign-in.png" width="400" />
+<img src="screenshots/location-access.png" width="400" />
+<img src="screenshots/notification-icon.png" width="400" />
+<img src="screenshots/notification-text.png" width="400" />
 <img src="screenshots/firebase.png" />
  
  ## Author
