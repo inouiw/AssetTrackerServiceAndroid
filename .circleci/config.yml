@@ -26,7 +26,7 @@ jobs:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
           name: Restore google-services.json
-          command: echo $GOOGLE_SERVICES | base64 --decode > ~/${HOME}/app/google-services.json
+          command: echo $GOOGLE_SERVICES | base64 --decode > app/google-services.json
       - run:
           name: Run Tests
           command: ./gradlew lint test
