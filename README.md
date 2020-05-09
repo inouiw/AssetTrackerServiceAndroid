@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/inouiw/AssetTrackerServiceAndroid.svg?style=svg)](https://circleci.com/gh/inouiw/AssetTrackerServiceAndroid)
+[![CircleCI](https://circleci.com/gh/inouiw/AssetTrackerServiceAndroid.svg?style=svg)](https://circleci.com/gh/inouiw/AssetTrackerServiceAndroid/tree/master)
 
 # Asset Tracker Service for Android
 This android app runs a background service that saves the device location, speed, direction and other measurements every 10 seconds to a google firestore database. 

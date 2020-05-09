@@ -1,6 +1,7 @@
 # Java Gradle CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-android/ for more details
+# Execute locally with: circleci local execute --job build
 #
 version: 2
 jobs:
