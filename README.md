@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/inouiw/AssetTrackerServiceAndroid.svg?style=svg)](https://circleci.com/gh/inouiw/AssetTrackerServiceAndroid/tree/master)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f77c480f821c4d85a2ceb37493a8e06c)](https://app.codacy.com/manual/inouiw/AssetTrackerServiceAndroid/dashboard)
 
 # Asset Tracker Service for Android
 This android app runs a background service that saves the device location, speed, direction and other measurements every 10 seconds to a google firestore database. 
@@ -50,6 +51,7 @@ or a web app. Firestore can push data modifications to clients.
  
  ``` javascript
  { 
+     deviceId: "erEXZrc6QMOZgOL4YTLTlo", // Type string
      manufacturer: "CUBOT", // Type string
      model: "CUBOT ECHO", // Type string
      api: 23, // Type number
@@ -81,8 +83,8 @@ or a web app. Firestore can push data modifications to clients.
 
 ## Other things to know
 
- - The app will not start automatically after a reboot. You need to click the app icon "Asset Tracker". 
- - If the internet connection is lost, the location is recorded on the device and synced once the connection is reestablished.
+- The app will not start automatically after a reboot. You need to click the app icon "Asset Tracker". 
+- If the internet connection is lost, the location is recorded on the device and synced once the connection is reestablished.
 
 ## Screenshots
 <img src="screenshots/sign-in.png" width="400" />

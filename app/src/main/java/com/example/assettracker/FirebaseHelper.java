@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -63,13 +64,13 @@ public class FirebaseHelper {
                     FirebaseHelper inst = new FirebaseHelper();
                     DocumentReference userRef = inst.getFirestoreDocumentForUserReference();
                     instanceTask = inst.saveDocIfNotExists(userRef, createUserDoc())
-                            .continueWithTask(task -> inst.saveDocIfNotExists(inst.deviceReference, createDeviceDoc()))
+                            .continueWithTask(task -> inst.saveDocIfNotExists(inst.deviceReference, createDeviceDoc(inst.deviceReference.getId())))
                             .continueWith(task -> {
                                 try {
                                     if (task.isSuccessful()) {
                                         instance = inst;
                                         inst.writeUnwrittenLogsToDatabase();
-                                        logInfo(TAG, "Logged in");
+                                        logInfo(TAG, "Logged in.");
                                         return inst;
                                     } else {
                                         throw getException(task);
@@ -147,15 +148,6 @@ public class FirebaseHelper {
         return e -> Log.e(TAG, String.format("Firebase error. CallerName: %s", callerName), e);
     }
 
-    public static String getMessageForUser(Throwable e) {
-        if (e instanceof FirebaseFirestoreException) {
-            FirebaseFirestoreException fex = (FirebaseFirestoreException) e;
-            String exCodeName = fex.getCode().name(); // eg: PERMISSION_DENIED or UNAVAILABLE
-            return String.format("%s error when accessing firebase.", exCodeName);
-        }
-        return e.toString();
-    }
-
     @NonNull
     private DocumentReference getFirestoreDocumentForUserReference() {
         FirebaseUser fUser = getFirebaseUser();
@@ -177,8 +169,8 @@ public class FirebaseHelper {
     }
 
     @NonNull
-    private static DeviceDoc createDeviceDoc() {
-        return new DeviceDoc(Build.MANUFACTURER, Build.MODEL, Build.VERSION.SDK_INT);
+    private static DeviceDoc createDeviceDoc(@NotNull String deviceId) {
+        return new DeviceDoc(deviceId, Build.MANUFACTURER, Build.MODEL, Build.VERSION.SDK_INT);
     }
 
     public static void logInfo(@NonNull String tag, @NonNull String msg) {
@@ -192,7 +184,7 @@ public class FirebaseHelper {
     // Accepts messages to be written to the database without requiring an instance.
     // If the instance is not yet created it will collect the logs and write them when the instance is initialized.
     @SuppressWarnings("UnusedReturnValue")
-    private static Task<Void>  logToDatabase(@NonNull String tag, @NonNull String level, @NonNull String msg) {
+    private static Task<Void> logToDatabase(@NonNull String tag, @NonNull String level, @NonNull String msg) {
         LogMessageDoc msgDoc = new LogMessageDoc(level, msg);
         Log.println(msgDoc.isError() ? Log.ERROR : Log.INFO, tag, msg);
         if (instance != null) {
@@ -216,6 +208,15 @@ public class FirebaseHelper {
             saveLogMessageDoc(msgDoc);
         }
         unwrittenLogMessages.clear();
+    }
+
+    public static String getMessageForUser(@NonNull Throwable e) {
+        if (e instanceof FirebaseFirestoreException) {
+            FirebaseFirestoreException fex = (FirebaseFirestoreException) e;
+            String exCodeName = fex.getCode().name(); // eg: PERMISSION_DENIED or UNAVAILABLE
+            return String.format("%s error when accessing firebase.", exCodeName);
+        }
+        return e.toString();
     }
 
     // Helper method that ensures that result of task.getException() is not null.
