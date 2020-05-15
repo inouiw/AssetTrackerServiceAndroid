@@ -1,4 +1,4 @@
-package com.example.assettracker.Entities;
+package com.example.assettracker.entities;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;

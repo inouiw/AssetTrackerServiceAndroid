@@ -26,7 +26,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
-import com.example.assettracker.Entities.MeasurementDoc;
+import com.example.assettracker.entities.MeasurementDoc;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 

@@ -7,7 +7,7 @@ The full location history is available for live or deferred analysis.
 ## Deploying the app to an android phone
 1. Install Android Studio.
 1. Clone or download this repository.
-1. Create a Firebase account because data is saved there. The free account is sufficient. See https://console.firebase.google.com
+1. Create a Firebase account because data is saved there. The free account is sufficient. See [console.firebase.google.com](https://console.firebase.google.com)
     1. In Firebase create a project, for example "asset-tracker".
     1. Navigate to Develop / Database  and open the Rules tab. Replace the contents with the content of the file `firestore.rules`. Click publish.
     1. Navigate to Authentication / Sign-in method and enable the Google sign-in provider.
@@ -42,7 +42,7 @@ or a web app. Firestore can push data modifications to clients.
      email: "test@gmail.com", // Type string
      displayName: "Test User", // Type string
      accountCreatedAt: 2 May 2020 at 20:16:40 UTC+2, // Type timestamp
-     authorizedUsers: ["pBc0SizEabPHtdB9FRkLDZycCq32"] // Type array of String
+     authorizedUsers: ["pBc0SizEabPHtdB9FRkLDZycCq32"] // Type array of string
  }
  ```
 

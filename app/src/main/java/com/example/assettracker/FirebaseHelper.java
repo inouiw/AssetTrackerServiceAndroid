@@ -8,9 +8,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.assettracker.Entities.DeviceDoc;
-import com.example.assettracker.Entities.LogMessageDoc;
-import com.example.assettracker.Entities.MeasurementDoc;
+import com.example.assettracker.entities.DeviceDoc;
+import com.example.assettracker.entities.LogMessageDoc;
+import com.example.assettracker.entities.MeasurementDoc;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.example.assettracker.Entities.UserDoc;
+import com.example.assettracker.entities.UserDoc;
+
+import static com.example.assettracker.ValidationException.ensureTrue;
 
 // Singleton class.
 // Handles the communication with the google firestore database.
@@ -59,9 +61,7 @@ public class FirebaseHelper {
             lock.lock();
             try {
                 if (instanceTask == null) {
-                    if (getFirebaseUser() == null) {
-                        throw new RuntimeException("Developer Error: This method may only be called after the user is authenticated.");
-                    }
+                    ensureTrue(getFirebaseUser() != null, "This method may only be called after the user is authenticated.");
                     FirebaseHelper inst = new FirebaseHelper(applicationContext);
                     DocumentReference userRef = inst.getFirestoreDocumentForUserReference();
                     instanceTask = inst.saveDocIfNotExists(userRef, createUserDoc())
@@ -179,7 +179,7 @@ public class FirebaseHelper {
 
     @NonNull
     private static DeviceDoc createDeviceDoc() {
-        return new DeviceDoc(Build.MANUFACTURER, android.os.Build.MODEL, Build.VERSION.SDK_INT);
+        return new DeviceDoc(Build.MANUFACTURER, Build.MODEL, Build.VERSION.SDK_INT);
     }
 
     public static void logInfo(@NonNull String tag, @NonNull String msg) {
@@ -235,11 +235,9 @@ public class FirebaseHelper {
     @NonNull
     private static Exception getException(@NonNull Task task)
     {
-        if (task.isSuccessful()) {
-            throw new RuntimeException("Developer Error: getException may only be called for not successful tasks.");
-        }
+        ensureTrue (task.isSuccessful(), "getException may only be called for not successful tasks.");
         Exception ex = task.getException();
-        return ex != null ? ex : new RuntimeException("Task is not successful and has no exception. isCancelled: " + task.isCanceled());
+        return ex != null ? ex : new ValidationException("Task is not successful and has no exception. isCancelled: " + task.isCanceled());
     }
 
 }
