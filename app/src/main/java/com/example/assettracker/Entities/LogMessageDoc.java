@@ -8,7 +8,6 @@ public class LogMessageDoc {
     private Timestamp time;
     private String level;
     private String message;
-    private String createdByUid;
     public static final String LEVEL_ERROR = "ERROR";
     public static final String LEVEL_INFO = "INFO";
 
@@ -31,14 +30,6 @@ public class LogMessageDoc {
 
     public Timestamp getTime() {
         return time;
-    }
-
-    public String getCreatedByUid() {
-        return createdByUid;
-    }
-
-    public void setCreatedByUid(String createdByUid) {
-        this.createdByUid = createdByUid;
     }
 
     @Exclude

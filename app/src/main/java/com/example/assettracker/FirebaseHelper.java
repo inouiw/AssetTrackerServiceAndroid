@@ -1,12 +1,14 @@
 package com.example.assettracker;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.assettracker.Entities.DeviceDoc;
 import com.example.assettracker.Entities.LogMessageDoc;
 import com.example.assettracker.Entities.MeasurementDoc;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -44,8 +46,8 @@ public class FirebaseHelper {
     private FirebaseHelper(Context applicationContext) {
         this.applicationContext = applicationContext;
         this.db = FirebaseFirestore.getInstance();
-        this.deviceReference = getFirestoreDocumentForThisDeviceReference();
         this.authUserUid = getFirebaseUser().getUid();
+        this.deviceReference = getFirestoreDocumentForThisDeviceReference(this.authUserUid);
     }
 
     // Returns a task that, when resolved, returns an instance of this class.
@@ -54,37 +56,39 @@ public class FirebaseHelper {
     @NonNull
     public static Task<FirebaseHelper> create(@NonNull final Context applicationContext) {
         if (instanceTask == null) {
+            // Hold lock till writeUnwrittenLogsToDatabase returns.
             lock.lock();
             try {
                 if (instanceTask == null) {
                     if (getFirebaseUser() == null) {
-                        throw new RuntimeException("Programming Error: This method may only be called after the user is authenticated.");
+                        throw new RuntimeException("Developer Error: This method may only be called after the user is authenticated.");
                     }
                     FirebaseHelper inst = new FirebaseHelper(applicationContext);
                     DocumentReference userRef = inst.getFirestoreDocumentForUserReference();
                     instanceTask = inst.saveDocIfNotExists(userRef, createUserDoc())
+                            .continueWithTask(task -> inst.saveDocIfNotExists(inst.deviceReference, createDeviceDoc()))
                             .continueWith(task -> {
                                 try {
                                     if (task.isSuccessful()) {
                                         instance = inst;
                                         inst.writeUnwrittenLogsToDatabase();
-                                        logInfo(TAG, "logged in");
+                                        logInfo(TAG, "Logged in");
                                         return inst;
                                     } else {
-                                        throw task.getException();
+                                        throw getException(task);
                                     }
                                 } finally {
                                     // Usually the lock will be released in this continuation task
                                     // which runs after the create method ended.
                                     lock.unlock();
                                 }
-                            });
+                        });
                 } else {
                     lock.unlock();
                 }
             } catch (Throwable t) {
                 // Release lock here if there was an error and the task was never started.
-                // If you get here it probably means a programming error.
+                // If you get here it probably means a developer error.
                 lock.unlock();
                 throw t;
             }
@@ -107,14 +111,12 @@ public class FirebaseHelper {
 
     @NonNull
     public Task<Void> saveMeasurementDoc(@NonNull MeasurementDoc doc) {
-        doc.setCreatedByUid(authUserUid);
         String docName = Long.toString(doc.getTime().toDate().getTime());
         DocumentReference docRef = deviceReference.collection("location-measurements").document(docName);
         return saveDoc(docRef, doc, "saveMeasurementDoc");
     }
 
     private Task<Void> saveLogMessageDoc(@NonNull LogMessageDoc doc) {
-        doc.setCreatedByUid(authUserUid);
         String docName = Long.toString(doc.getTime().toDate().getTime());
         DocumentReference docRef = deviceReference.collection("logs").document(docName);
         return saveDoc(docRef, doc, "saveLogMessageDoc");
@@ -129,10 +131,11 @@ public class FirebaseHelper {
     private Task<Void> saveDocIfNotExists(@NonNull final DocumentReference docRef, @NonNull final Object data) {
         return getDoc(docRef, Source.SERVER, "saveDocIfNotExists")  // Force load from server so there will be an error if no permission.
                 .continueWithTask(task -> {
-                    if (!task.isSuccessful()) {
-                        return Tasks.forException(task.getException());
+                   if (!task.isSuccessful()) {
+                        return Tasks.forException(getException(task));
                     } else {
-                        if (!task.getResult().exists()) {
+                        DocumentSnapshot res = task.getResult();
+                        if (res == null || !res.exists()) {
                             return saveDoc(docRef, data, "saveDocIfNotExists");
                         } else {
                             return Tasks.forResult(null);
@@ -145,7 +148,6 @@ public class FirebaseHelper {
     private OnFailureListener createFailureListener(@NonNull final String callerName) {
         return e -> {
             Log.e(TAG, String.format("Firebase error. CallerName: %s", callerName), e);
-
             if (e instanceof FirebaseFirestoreException) {
                 FirebaseFirestoreException fex = (FirebaseFirestoreException) e;
                 String exCodeName = fex.getCode().name(); // eg: PERMISSION_DENIED or UNAVAILABLE
@@ -162,10 +164,10 @@ public class FirebaseHelper {
     }
 
     @NonNull
-    private DocumentReference getFirestoreDocumentForThisDeviceReference() {
+    private DocumentReference getFirestoreDocumentForThisDeviceReference(@NonNull String userUid) {
         // FirebaseInstanceId can be used as unique id of the app.
         String firebaseInstanceId = FirebaseInstanceId.getInstance().getId();
-        return db.document(String.format("devices/%s", firebaseInstanceId));
+        return db.document(String.format("users/%s/devices/%s", userUid, firebaseInstanceId));
     }
 
     @NonNull
@@ -173,6 +175,11 @@ public class FirebaseHelper {
         FirebaseUser fUser = getFirebaseUser();
         // Note getUid is NonNull.
         return new UserDoc(fUser.getUid(), fUser.getEmail(), fUser.getDisplayName());
+    }
+
+    @NonNull
+    private static DeviceDoc createDeviceDoc() {
+        return new DeviceDoc(Build.MANUFACTURER, android.os.Build.MODEL, Build.VERSION.SDK_INT);
     }
 
     public static void logInfo(@NonNull String tag, @NonNull String msg) {
@@ -185,22 +192,20 @@ public class FirebaseHelper {
 
     // Accepts messages to be written to the database without requiring an instance.
     // If the instance is not yet created it will collect the logs and write them when the instance is initialized.
-    private static void logToDatabase(@NonNull String tag, @NonNull String level, @NonNull String msg) {
+    private static Task<Void>  logToDatabase(@NonNull String tag, @NonNull String level, @NonNull String msg) {
         LogMessageDoc msgDoc = new LogMessageDoc(level, msg);
         Log.println(msgDoc.isError() ? Log.ERROR : Log.INFO, tag, msg);
-
         if (instance != null) {
-            instance.saveLogMessageDoc(msgDoc);
-            return;
+            return instance.saveLogMessageDoc(msgDoc);
         }
         lock.lock();
         try {
             if (instance != null) {
-                instance.saveLogMessageDoc(msgDoc);
+                // This method is async. No lock required till completed because only unwrittenLogMessages needs protection.
+                return instance.saveLogMessageDoc(msgDoc);
             }
-            else {
-                unwrittenLogMessages.add(msgDoc);
-            }
+            unwrittenLogMessages.add(msgDoc);
+            return Tasks.forResult(null);
         } finally {
             lock.unlock();
         }
@@ -223,6 +228,17 @@ public class FirebaseHelper {
             Handler handler = new Handler(applicationContext.getMainLooper());
             handler.post(() -> Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show());
         }).start();
+    }
+
+    // Helper method that ensures that result of task.getException() is not null.
+    @NonNull
+    private static Exception getException(@NonNull Task task)
+    {
+        if (task.isSuccessful()) {
+            throw new RuntimeException("Developer Error: getException may only be called for not successful tasks.");
+        }
+        Exception ex = task.getException();
+        return ex != null ? ex : new RuntimeException("Task is not successful and has no exception. isCancelled: " + task.isCanceled());
     }
 
 }

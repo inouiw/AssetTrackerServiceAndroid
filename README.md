@@ -29,7 +29,7 @@ or a web app. Firestore can push data modifications to clients.
 
 ## Saved data
 
-### Users: `/users/{userUid}`
+### User: `/users/{userUid}`
 
 - A user must have a google account but different log-in methods can be activated.
 - A user may generate measurement data for zero or more devices.
@@ -42,13 +42,22 @@ or a web app. Firestore can push data modifications to clients.
      email: "test@gmail.com", // Type string
      displayName: "Test User", // Type string
      accountCreatedAt: 2 May 2020 at 20:16:40 UTC+2, // Type timestamp
-     permissionGivenTo: [/users/pBc0SizEabPHtdB9HRkLDZycCq32] // Type array of reference
+     authorizedUsers: ["pBc0SizEabPHtdB9FRkLDZycCq32"] // Type array of String
  }
  ```
 
-### Location-Measurements: `/devices/{deviceId}/location-measurements/{timestamp}`
+### Device: `/users/{userUid}/devices/{deviceId}`
+ 
+ ``` javascript
+ { 
+     manufacturer: "CUBOT", // Type string
+     model: "CUBOT ECHO", // Type string
+     api: 23, // Type number
+     firstLoginAt: 15 May 2020 at 13:04:56 UTC+2 // Type timestamp
+ }
+ ```
 
-The security rules verify that the createdBy field refers to the logged-in user.
+### Location-Measurement: `/users/{userUid}/devices/{deviceId}/location-measurements/{timestamp}`
 
 ``` javascript
 { 
@@ -56,21 +65,17 @@ The security rules verify that the createdBy field refers to the logged-in user.
     horizontalAccuracyMeters: 22.291000366210938, // Type number
     bearing: 271.8037109375, // Type number; horizontal direction of travel in degrees 0.0-360.0
     speed: 0.10250464826822281, // Type number; meters/second
-    time: 4 May 2020 at 07:16:40 UTC+2, // Type timestamp
-    createdByUid: "qDrkd0i898cjJhEo3MDJZaxe2gO" // Type string
+    time: 4 May 2020 at 07:16:40 UTC+2 // Type timestamp
 }
 ```
 
-### Log Messages `/devices/{deviceId}/logs/{timestamp}`
-
-The security rules verify that the createdBy field refers to the logged-in user.
+### Log Message `/devices/{deviceId}/logs/{timestamp}`
 
 ``` javascript
 { 
     time: 5 May 2020 at 22:44:37 UTC+2, // Type timestamp
     message: "App started", // Type string
-    level: "INFO", // Type string
-    createdByUid: "/users/"qDrkd0i898cjJhEo3MDJZaxe2gO" // Type string
+    level: "INFO" // Type string
 }
 ```
 

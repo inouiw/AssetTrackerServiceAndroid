@@ -13,7 +13,6 @@ public class MeasurementDoc {
     private float bearing;
     // horizontal accuracy, radio, in meters with 68% confidence
     private float horizontalAccuracyMeters;
-    private String createdByUid;
 
     public MeasurementDoc(Timestamp time, GeoPoint geoPoint, float speed, float bearing, float horizontalAccuracyMeters) {
         this.time = time;
@@ -39,13 +38,5 @@ public class MeasurementDoc {
 
     public float getHorizontalAccuracyMeters() {
         return horizontalAccuracyMeters;
-    }
-
-    public String getCreatedByUid() {
-        return createdByUid;
-    }
-
-    public void setCreatedByUid(String createdByUid) {
-        this.createdByUid = createdByUid;
     }
 }

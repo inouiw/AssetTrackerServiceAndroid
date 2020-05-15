@@ -11,7 +11,7 @@ public class UserDoc {
     private String eMail;
     private String displayName;
     private Timestamp accountCreatedAt; // firestore timestamp
-    private ArrayList<DocumentReference> permissionGivenTo = new ArrayList<>();
+    private ArrayList<String> authorizedUsers = new ArrayList<>();
 
     public UserDoc(String userUId, String eMail, String displayName) {
         this.userUid = userUId;
@@ -26,19 +26,13 @@ public class UserDoc {
 
     public String getEMail() { return eMail; }
 
-    public String getDisplayName() {
-        return displayName;
-    }
+    public String getDisplayName() { return displayName; }
 
-    public Timestamp getAccountCreatedAt() {
-        return accountCreatedAt;
-    }
+    public Timestamp getAccountCreatedAt() { return accountCreatedAt; }
 
-    public ArrayList<DocumentReference> getPermissionGivenTo() {
-        return permissionGivenTo;
-    }
+    public ArrayList<String> getAuthorizedUsers() { return authorizedUsers; }
 
-    public void setPermissionGivenTo(ArrayList<DocumentReference> permissionGivenTo) {
-        this.permissionGivenTo = permissionGivenTo;
+    public void setAuthorizedUsers(ArrayList<String> authorizedUsers) {
+        this.authorizedUsers = authorizedUsers;
     }
 }

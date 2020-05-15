@@ -5,19 +5,32 @@ service cloud.firestore {
       allow get, delete: if request.auth.uid == userUid;
       // Ensure that the userUid field of the created document equals the authenticated user uid.
       allow create, update: if request.auth.uid == userUid && request.auth.uid == request.resource.data.userUid;
+
+      match /devices/{deviceId} {
+        allow get, delete: if request.auth.uid == userUid;
+        allow create, update: if request.auth.uid == userUid;
+
+        // Need to filter data while reading, see https://firebase.google.com/docs/firestore/security/rules-query
+        match /location-measurements/{locId} {
+          allow get, delete: if request.auth.uid == userUid || (get(/databases/$(database)/documents/users/$(userUid)).data.
+authorizedUsers.hasAny([request.auth.uid])
+);
+          allow list: if request.auth.uid == userUid || (get(/databases/$(database)/documents/users/$(userUid)).data.
+authorizedUsers.hasAny([request.auth.uid])
+) && request.query.limit <= 8640;
+          // Ensure that the createdByUid field of the created document equals the authenticated user uid.
+          allow create: if request.auth.uid == userUid;
+        }
+
+        match /logs/{logId} {
+          allow get, delete: if request.auth.uid == userUid;
+          allow list: if request.auth.uid == userUid && request.query.limit <= 8640;
+          // Ensure that the createdByUid field of the created document equals the authenticated user uid.
+          allow create: if request.auth.uid == userUid;
+        }
+      }
     }
-    // Need to filter data while reading, see https://firebase.google.com/docs/firestore/security/rules-query
-    match /devices/{deviceId}/location-measurements/{locId} {
-      allow get, delete: if request.auth.uid == resource.data.createdByUid;
-      allow list: if request.auth.uid == resource.data.createdByUid && request.query.limit <= 8640;
-      // Ensure that the createdByUid field of the created document equals the authenticated user uid.
-      allow create: if request.resource.data.createdByUid == request.auth.uid;
-    }
-    match /devices/{deviceId}/logs/{logId} {
-      allow get, delete: if request.auth.uid == resource.data.createdByUid;
-      allow list: if request.auth.uid == resource.data.createdByUid && request.query.limit <= 8640;
-      // Ensure that the createdByUid field of the created document equals the authenticated user uid.
-      allow create: if request.resource.data.createdByUid == request.auth.uid;
-    }
+
+
   }
 }
