@@ -37,15 +37,15 @@ public class FirebaseHelper {
     private static List<LogMessageDoc> unwrittenLogMessages = new ArrayList<>();
     private Context applicationContext;
     private FirebaseFirestore db;
-    private DocumentReference userReference;
     private DocumentReference deviceReference;
+    private String authUserUid; // Authenticated user uid.
 
     // Private so create() must be used.
     private FirebaseHelper(Context applicationContext) {
         this.applicationContext = applicationContext;
         this.db = FirebaseFirestore.getInstance();
-        this.userReference = getFirestoreDocumentForUserReference();
         this.deviceReference = getFirestoreDocumentForThisDeviceReference();
+        this.authUserUid = getFirebaseUser().getUid();
     }
 
     // Returns a task that, when resolved, returns an instance of this class.
@@ -61,7 +61,8 @@ public class FirebaseHelper {
                         throw new RuntimeException("Programming Error: This method may only be called after the user is authenticated.");
                     }
                     FirebaseHelper inst = new FirebaseHelper(applicationContext);
-                    instanceTask = inst.saveDocIfNotExists(inst.userReference, createUserDoc())
+                    DocumentReference userRef = inst.getFirestoreDocumentForUserReference();
+                    instanceTask = inst.saveDocIfNotExists(userRef, createUserDoc())
                             .continueWith(task -> {
                                 try {
                                     if (task.isSuccessful()) {
@@ -106,15 +107,14 @@ public class FirebaseHelper {
 
     @NonNull
     public Task<Void> saveMeasurementDoc(@NonNull MeasurementDoc doc) {
-        doc.setCreatedByy(userReference);
+        doc.setCreatedByUid(authUserUid);
         String docName = Long.toString(doc.getTime().toDate().getTime());
         DocumentReference docRef = deviceReference.collection("location-measurements").document(docName);
         return saveDoc(docRef, doc, "saveMeasurementDoc");
     }
 
     private Task<Void> saveLogMessageDoc(@NonNull LogMessageDoc doc) {
-        String test = userReference.toString();
-        doc.setGeneratedBy(userReference);
+        doc.setCreatedByUid(authUserUid);
         String docName = Long.toString(doc.getTime().toDate().getTime());
         DocumentReference docRef = deviceReference.collection("logs").document(docName);
         return saveDoc(docRef, doc, "saveLogMessageDoc");

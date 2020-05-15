@@ -29,7 +29,7 @@ or a web app. Firestore can push data modifications to clients.
 
 ## Saved data
 
-### Users: `/users/{userId}`
+### Users: `/users/{userUid}`
 
 - A user must have a google account but different log-in methods can be activated.
 - A user may generate measurement data for zero or more devices.
@@ -38,7 +38,7 @@ or a web app. Firestore can push data modifications to clients.
  
  ``` javascript
  { 
-     userId: "qDrkd0i898cjJhEo3MDJZaxe2gO", // Type string
+     userUid: "qDrkd0i898cjJhEo3MDJZaxe2gO", // Type string
      email: "test@gmail.com", // Type string
      displayName: "Test User", // Type string
      accountCreatedAt: 2 May 2020 at 20:16:40 UTC+2, // Type timestamp
@@ -57,7 +57,7 @@ The security rules verify that the createdBy field refers to the logged-in user.
     bearing: 271.8037109375, // Type number; horizontal direction of travel in degrees 0.0-360.0
     speed: 0.10250464826822281, // Type number; meters/second
     time: 4 May 2020 at 07:16:40 UTC+2, // Type timestamp
-    createdBy: /users/qDrkd0i898cjJhEo3MDJZaxe2gO // Type reference
+    createdByUid: "qDrkd0i898cjJhEo3MDJZaxe2gO" // Type string
 }
 ```
 
@@ -70,7 +70,7 @@ The security rules verify that the createdBy field refers to the logged-in user.
     time: 5 May 2020 at 22:44:37 UTC+2, // Type timestamp
     message: "App started", // Type string
     level: "INFO", // Type string
-    createdBy: /users/qDrkd0i898cjJhEo3MDJZaxe2gO // Type reference
+    createdByUid: "/users/"qDrkd0i898cjJhEo3MDJZaxe2gO" // Type string
 }
 ```
 

@@ -7,21 +7,21 @@ import java.util.ArrayList;
 
 // The User document as stored in firebase.
 public class UserDoc {
-    private String userId;
+    private String userUid;
     private String eMail;
     private String displayName;
     private Timestamp accountCreatedAt; // firestore timestamp
     private ArrayList<DocumentReference> permissionGivenTo = new ArrayList<>();
 
-    public UserDoc(String userId, String eMail, String displayName) {
-        this.userId = userId;
+    public UserDoc(String userUId, String eMail, String displayName) {
+        this.userUid = userUId;
         this.eMail = eMail;
         this.displayName = displayName;
         this.accountCreatedAt = Timestamp.now();
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUserUid() {
+        return userUid;
     }
 
     public String getEMail() { return eMail; }

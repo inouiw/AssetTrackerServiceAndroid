@@ -8,7 +8,7 @@ public class LogMessageDoc {
     private Timestamp time;
     private String level;
     private String message;
-    private DocumentReference createdBy;
+    private String createdByUid;
     public static final String LEVEL_ERROR = "ERROR";
     public static final String LEVEL_INFO = "INFO";
 
@@ -33,12 +33,12 @@ public class LogMessageDoc {
         return time;
     }
 
-    public DocumentReference getCreatedBy() {
-        return createdBy;
+    public String getCreatedByUid() {
+        return createdByUid;
     }
 
-    public void setGeneratedBy(DocumentReference createdBy) {
-        this.createdBy = createdBy;
+    public void setCreatedByUid(String createdByUid) {
+        this.createdByUid = createdByUid;
     }
 
     @Exclude

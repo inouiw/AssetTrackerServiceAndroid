@@ -1,25 +1,23 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-  	match /users/{userId} {
-      allow get, delete: if request.auth.uid == userId;
-      // Ensure that the userId field of the created document equals the authenticated user id.
-      allow create, update: if request.auth.uid == userId && request.auth.uid == request.resource.data.userId;
+  	match /users/{userUid} {
+      allow get, delete: if request.auth.uid == userUid;
+      // Ensure that the userUid field of the created document equals the authenticated user uid.
+      allow create, update: if request.auth.uid == userUid && request.auth.uid == request.resource.data.userUid;
     }
     // Need to filter data while reading, see https://firebase.google.com/docs/firestore/security/rules-query
     match /devices/{deviceId}/location-measurements/{locId} {
-      allow get, delete: if path("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy;
-      allow list: if path("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy && request.query.limit <= 8640;
-      // Ensure that the createdBy field of the created document equals the authenticated user id.
-      // In the Playground request.resource.data.createdBy is not of type path even if reference type is used.
-      allow create: if request.resource.data.createdBy == path("databases/" + database + "/documents/users/" + request.auth.uid);
+      allow get, delete: if request.auth.uid == resource.data.createdByUid;
+      allow list: if request.auth.uid == resource.data.createdByUid && request.query.limit <= 8640;
+      // Ensure that the createdByUid field of the created document equals the authenticated user uid.
+      allow create: if request.resource.data.createdByUid == request.auth.uid;
     }
     match /devices/{deviceId}/logs/{logId} {
-      allow get, delete: if path("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy;
-      allow list: if path("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy && request.query.limit <= 8640;
-      // Ensure that the createdBy field of the created document equals the authenticated user id.
-      // In the Playground request.resource.data.createdBy is not of type path even if reference type is used.
-      allow create: if request.resource.data.createdBy == path("databases/" + database + "/documents/users/" + request.auth.uid);
+      allow get, delete: if request.auth.uid == resource.data.createdByUid;
+      allow list: if request.auth.uid == resource.data.createdByUid && request.query.limit <= 8640;
+      // Ensure that the createdByUid field of the created document equals the authenticated user uid.
+      allow create: if request.resource.data.createdByUid == request.auth.uid;
     }
   }
 }
