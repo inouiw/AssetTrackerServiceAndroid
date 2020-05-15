@@ -24,8 +24,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private FirebaseHelper firebaseHelper = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onAuthenticated() {
         FirebaseHelper.create(this.getApplicationContext()).addOnSuccessListener(firebaseHelperInstance -> {
-            firebaseHelper = firebaseHelperInstance;
+            // The returned instance of FirebaseHelper is currently not used.
             checkLocationAccessPermissions();
         });
     }
@@ -105,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST && grantResults.length == 1
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             onLocationAccessPermissionGraned();
@@ -133,9 +131,9 @@ public class MainActivity extends AppCompatActivity {
                 //   "GoogleSignInHandler: Developer error: this application is misconfigured. Check your SHA1 and package name in the Firebase console."
                 //   See README.md for how to add the SHA certificate fingerprint.
                 String msg = "Sign in failed. resultCode: " + resultCode ;
-                msg += ", " + response == null ? "response: null" : response.getError() == null
+                msg += ", " + (response == null ? "response: null" : response.getError() == null
                         ? "response.getError(): null" : "response errorCode: " + response.getError().getErrorCode()
-                        + ", response Status: " + response.getError().getMessage(); // Example: "Code: 10, message: 10: " See CommonStatusCodes enum for meaning.
+                        + ", response Status: " + response.getError().getMessage()); // Example: "Code: 10, message: 10: " See CommonStatusCodes enum for meaning.
 
                 logError(msg);
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
@@ -145,12 +143,12 @@ public class MainActivity extends AppCompatActivity {
 
     // Writes the message to the log and to the firestore database.
     private void logInfo(@NonNull String msg) {
-        firebaseHelper.logInfo(TAG, msg);
+        FirebaseHelper.logInfo(TAG, msg);
     }
 
     // Writes the message to the log and to the firestore database.
     private void logError(@NonNull String msg) {
-        firebaseHelper.logError(TAG, msg);
+        FirebaseHelper.logError(TAG, msg);
     }
 
 }

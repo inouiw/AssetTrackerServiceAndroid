@@ -28,7 +28,6 @@ import com.google.android.gms.location.LocationServices;
 
 import com.example.assettracker.Entities.MeasurementDoc;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Date;
@@ -38,10 +37,6 @@ public class TrackerService extends Service {
     private static final String TAG = TrackerService.class.getSimpleName();
 
     private FirebaseHelper firebaseHelper = null;
-
-    private String appName() {
-        return getString(R.string.app_name);
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -146,12 +141,12 @@ public class TrackerService extends Service {
 
     // Writes the message to the log and to the firestore database.
     private void logInfo(@NonNull String msg) {
-        firebaseHelper.logInfo(TAG, msg);
+        FirebaseHelper.logInfo(TAG, msg);
     }
 
     // Writes the message to the log and to the firestore database.
     private void logError(@NonNull String msg) {
-        firebaseHelper.logError(TAG, msg);
+        FirebaseHelper.logError(TAG, msg);
     }
 
 }

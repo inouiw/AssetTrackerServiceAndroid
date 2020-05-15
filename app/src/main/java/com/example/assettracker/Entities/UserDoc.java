@@ -1,7 +1,6 @@
 package com.example.assettracker.Entities;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
 

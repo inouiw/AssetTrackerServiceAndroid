@@ -1,7 +1,6 @@
 package com.example.assettracker.Entities;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
 // The measurement document as stored in firebase.

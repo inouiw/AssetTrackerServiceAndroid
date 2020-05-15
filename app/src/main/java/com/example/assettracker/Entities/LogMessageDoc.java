@@ -1,7 +1,6 @@
 package com.example.assettracker.Entities;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
 public class LogMessageDoc {
@@ -12,7 +11,7 @@ public class LogMessageDoc {
     public static final String LEVEL_INFO = "INFO";
 
     public LogMessageDoc(String level, String message) {
-        if (level != LEVEL_ERROR && level != LEVEL_INFO) {
+        if (!level.equals(LEVEL_ERROR) && !level.equals(LEVEL_INFO)) {
             throw new IllegalArgumentException("level");
         }
         this.time = Timestamp.now();
@@ -34,6 +33,6 @@ public class LogMessageDoc {
 
     @Exclude
     public Boolean isError() {
-        return level == LEVEL_ERROR;
+        return level.equals(LEVEL_ERROR);
     }
 }

@@ -6,13 +6,12 @@ public class DeviceDoc {
     private String manufacturer;
     private String model;
     private int api;
-    private Timestamp firstLoginAt;
+    private Timestamp firstLoginAt = Timestamp.now();
 
     public DeviceDoc(String manufacturer, String model, int api) {
         this.manufacturer = manufacturer;
         this.model = model;
         this.api = api;
-        this.firstLoginAt = Timestamp.now();
     }
 
     public String getManufacturer() { return manufacturer; }

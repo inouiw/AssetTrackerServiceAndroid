@@ -29,7 +29,7 @@ or a web app. Firestore can push data modifications to clients.
 
 ## Saved data
 
-### User: `/users/{userUid}`
+### Users: `/users/{userUid}`
 
 - A user must have a google account but different log-in methods can be activated.
 - A user may generate measurement data for zero or more devices.
@@ -46,7 +46,7 @@ or a web app. Firestore can push data modifications to clients.
  }
  ```
 
-### Device: `/users/{userUid}/devices/{deviceId}`
+### Devices: `/users/{userUid}/devices/{deviceId}`
  
  ``` javascript
  { 
@@ -57,7 +57,7 @@ or a web app. Firestore can push data modifications to clients.
  }
  ```
 
-### Location-Measurement: `/users/{userUid}/devices/{deviceId}/location-measurements/{timestamp}`
+### Location-Measurements: `/users/{userUid}/devices/{deviceId}/location-measurements/{timestamp}`
 
 ``` javascript
 { 
@@ -69,7 +69,7 @@ or a web app. Firestore can push data modifications to clients.
 }
 ```
 
-### Log Message `/devices/{deviceId}/logs/{timestamp}`
+### Log Messages: `/users/{userUid}/devices/{deviceId}/logs/{timestamp}`
 
 ``` javascript
 { 

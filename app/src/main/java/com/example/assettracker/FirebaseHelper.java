@@ -40,14 +40,13 @@ public class FirebaseHelper {
     private Context applicationContext;
     private FirebaseFirestore db;
     private DocumentReference deviceReference;
-    private String authUserUid; // Authenticated user uid.
 
     // Private so create() must be used.
     private FirebaseHelper(Context applicationContext) {
         this.applicationContext = applicationContext;
         this.db = FirebaseFirestore.getInstance();
-        this.authUserUid = getFirebaseUser().getUid();
-        this.deviceReference = getFirestoreDocumentForThisDeviceReference(this.authUserUid);
+        String authUserUid = getFirebaseUser().getUid();
+        this.deviceReference = getFirestoreDocumentForThisDeviceReference(authUserUid);
     }
 
     // Returns a task that, when resolved, returns an instance of this class.
@@ -109,6 +108,7 @@ public class FirebaseHelper {
         return docRef.get(source).addOnFailureListener(createFailureListener(callerName + " -> getDoc"));
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     @NonNull
     public Task<Void> saveMeasurementDoc(@NonNull MeasurementDoc doc) {
         String docName = Long.toString(doc.getTime().toDate().getTime());
@@ -192,6 +192,7 @@ public class FirebaseHelper {
 
     // Accepts messages to be written to the database without requiring an instance.
     // If the instance is not yet created it will collect the logs and write them when the instance is initialized.
+    @SuppressWarnings("UnusedReturnValue")
     private static Task<Void>  logToDatabase(@NonNull String tag, @NonNull String level, @NonNull String msg) {
         LogMessageDoc msgDoc = new LogMessageDoc(level, msg);
         Log.println(msgDoc.isError() ? Log.ERROR : Log.INFO, tag, msg);
