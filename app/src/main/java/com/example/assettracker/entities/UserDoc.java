@@ -1,6 +1,7 @@
 package com.example.assettracker.entities;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
 
@@ -9,6 +10,7 @@ public class UserDoc {
     private String userUid;
     private String eMail;
     private String displayName;
+    @ServerTimestamp
     private Timestamp accountCreatedAt; // firestore timestamp
     private ArrayList<String> authorizedUsers = new ArrayList<>();
 
@@ -16,7 +18,6 @@ public class UserDoc {
         this.userUid = userUId;
         this.eMail = eMail;
         this.displayName = displayName;
-        this.accountCreatedAt = Timestamp.now();
     }
 
     public String getUserUid() {

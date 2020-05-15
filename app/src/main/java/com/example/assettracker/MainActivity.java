@@ -10,6 +10,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -56,6 +57,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void onAuthenticated() {
+        setContentView(R.layout.activity_main);
+
+        Boolean isConn = FirebaseHelper.isConnectedToInternet(this);
+        TextView internetStatusTv = findViewById(R.id.internetStatus);
+        internetStatusTv.setText(getString(R.string.has_internet, isConn));
+
+        FirebaseHelper.create().addOnSuccessListener(firebaseHelperInstance -> {
+            // The returned instance of FirebaseHelper is currently not used.
+            checkLocationAccessPermissions();
+        }).addOnFailureListener(ex -> showError(FirebaseHelper.getMessageForUser(ex)));
+    }
+
     private void checkLocationAccessPermissions() {
         // Check GPS is enabled
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -77,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            onLocationAccessPermissionGraned();
+            onLocationAccessPermissionGranted();
         } else {
             logInfo("Requesting location access permission.");
             ActivityCompat.requestPermissions(this,
@@ -86,32 +100,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void onLocationAccessPermissionGranted() {
+        startTrackerService();
+    }
+
     private void startTrackerService() {
         ContextCompat.startForegroundService(this, new Intent(this, TrackerService.class));
         finish();
-    }
-
-    private void onAuthenticated() {
-        FirebaseHelper.create(this.getApplicationContext()).addOnSuccessListener(firebaseHelperInstance -> {
-            // The returned instance of FirebaseHelper is currently not used.
-            checkLocationAccessPermissions();
-        });
-    }
-
-    private void onLocationAccessPermissionGraned() {
-        startTrackerService();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST && grantResults.length == 1
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            onLocationAccessPermissionGraned();
+            onLocationAccessPermissionGranted();
         } else {
             logError("Location access permission not granted. requestCode: " + requestCode
                     + ", grantResults.length: " + grantResults.length + ", grantResults[0]: "
                     + (grantResults.length == 0 ? "" : grantResults[0]));
-            Toast.makeText(this, "Requesting location permission failed", Toast.LENGTH_LONG).show();
+            showError("Requesting location permission failed");
         }
     }
 
@@ -136,9 +143,14 @@ public class MainActivity extends AppCompatActivity {
                         + ", response Status: " + response.getError().getMessage()); // Example: "Code: 10, message: 10: " See CommonStatusCodes enum for meaning.
 
                 logError(msg);
-                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+                showError(msg);
             }
         }
+    }
+
+    private void showError(String msg) {
+        TextView errorMsgTv = findViewById(R.id.errorMsg);
+        errorMsgTv.setText(msg);
     }
 
     // Writes the message to the log and to the firestore database.

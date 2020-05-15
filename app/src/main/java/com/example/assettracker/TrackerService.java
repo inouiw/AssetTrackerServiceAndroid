@@ -50,7 +50,7 @@ public class TrackerService extends Service {
         Thread.setDefaultUncaughtExceptionHandler((t, ex) -> logError("Uncaught exception: " + ex.toString()));
         logInfo("Service started.");
 
-        FirebaseHelper.create(this.getApplicationContext()).addOnSuccessListener(firebaseHelperInstance -> {
+        FirebaseHelper.create().addOnSuccessListener(firebaseHelperInstance -> {
             firebaseHelper = firebaseHelperInstance;
             buildNotification();
             requestLocationUpdates();

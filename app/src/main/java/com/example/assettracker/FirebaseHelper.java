@@ -1,10 +1,10 @@
 package com.example.assettracker;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -39,13 +39,11 @@ public class FirebaseHelper {
     private static FirebaseHelper instance = null;
     private static final ReentrantLock lock = new ReentrantLock();
     private static List<LogMessageDoc> unwrittenLogMessages = new ArrayList<>();
-    private Context applicationContext;
     private FirebaseFirestore db;
     private DocumentReference deviceReference;
 
     // Private so create() must be used.
-    private FirebaseHelper(Context applicationContext) {
-        this.applicationContext = applicationContext;
+    private FirebaseHelper() {
         this.db = FirebaseFirestore.getInstance();
         String authUserUid = getFirebaseUser().getUid();
         this.deviceReference = getFirestoreDocumentForThisDeviceReference(authUserUid);
@@ -55,14 +53,14 @@ public class FirebaseHelper {
     // The user must be authenticated before calling this method or an exception is thrown.
     // Ensures that the user document exist. The device document contains no data so no check necessary.
     @NonNull
-    public static Task<FirebaseHelper> create(@NonNull final Context applicationContext) {
+    public static Task<FirebaseHelper> create() {
         if (instanceTask == null) {
             // Hold lock till writeUnwrittenLogsToDatabase returns.
             lock.lock();
             try {
                 if (instanceTask == null) {
                     ensureTrue(getFirebaseUser() != null, "This method may only be called after the user is authenticated.");
-                    FirebaseHelper inst = new FirebaseHelper(applicationContext);
+                    FirebaseHelper inst = new FirebaseHelper();
                     DocumentReference userRef = inst.getFirestoreDocumentForUserReference();
                     instanceTask = inst.saveDocIfNotExists(userRef, createUserDoc())
                             .continueWithTask(task -> inst.saveDocIfNotExists(inst.deviceReference, createDeviceDoc()))
@@ -131,7 +129,7 @@ public class FirebaseHelper {
     private Task<Void> saveDocIfNotExists(@NonNull final DocumentReference docRef, @NonNull final Object data) {
         return getDoc(docRef, Source.SERVER, "saveDocIfNotExists")  // Force load from server so there will be an error if no permission.
                 .continueWithTask(task -> {
-                   if (!task.isSuccessful()) {
+                    if (!task.isSuccessful()) {
                         return Tasks.forException(getException(task));
                     } else {
                         DocumentSnapshot res = task.getResult();
@@ -146,15 +144,16 @@ public class FirebaseHelper {
 
     @NonNull
     private OnFailureListener createFailureListener(@NonNull final String callerName) {
-        return e -> {
-            Log.e(TAG, String.format("Firebase error. CallerName: %s", callerName), e);
-            if (e instanceof FirebaseFirestoreException) {
-                FirebaseFirestoreException fex = (FirebaseFirestoreException) e;
-                String exCodeName = fex.getCode().name(); // eg: PERMISSION_DENIED or UNAVAILABLE
-                String appName = applicationContext.getString(R.string.app_name);
-                showToast(String.format("%s: %s error when accessing firebase from %s.", appName, exCodeName, callerName));
-            }
-        };
+        return e -> Log.e(TAG, String.format("Firebase error. CallerName: %s", callerName), e);
+    }
+
+    public static String getMessageForUser(Throwable e) {
+        if (e instanceof FirebaseFirestoreException) {
+            FirebaseFirestoreException fex = (FirebaseFirestoreException) e;
+            String exCodeName = fex.getCode().name(); // eg: PERMISSION_DENIED or UNAVAILABLE
+            return String.format("%s error when accessing firebase.", exCodeName);
+        }
+        return e.toString();
     }
 
     @NonNull
@@ -219,25 +218,22 @@ public class FirebaseHelper {
         unwrittenLogMessages.clear();
     }
 
-    public void showToast(final String message) {
-        showToast(applicationContext, message);
-    }
-
-    // Toast needs to work from Activity and from Service and from background tasks of each.
-    public static void showToast(final Context applicationContext, final String message) {
-        new Thread(() -> {
-            Handler handler = new Handler(applicationContext.getMainLooper());
-            handler.post(() -> Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show());
-        }).start();
-    }
-
     // Helper method that ensures that result of task.getException() is not null.
     @NonNull
     private static Exception getException(@NonNull Task task)
     {
-        ensureTrue (task.isSuccessful(), "getException may only be called for not successful tasks.");
+        ensureTrue (!task.isSuccessful(), "getException may only be called for not successful tasks.");
         Exception ex = task.getException();
         return ex != null ? ex : new ValidationException("Task is not successful and has no exception. isCancelled: " + task.isCanceled());
+    }
+
+    public static boolean isConnectedToInternet(@NonNull Context context) {
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            return false;
+        }
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
 }

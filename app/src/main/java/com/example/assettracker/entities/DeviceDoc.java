@@ -1,12 +1,14 @@
 package com.example.assettracker.entities;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.ServerTimestamp;
 
 public class DeviceDoc {
     private String manufacturer;
     private String model;
     private int api;
-    private Timestamp firstLoginAt = Timestamp.now();
+    @ServerTimestamp
+    private Timestamp firstLoginAt;
 
     public DeviceDoc(String manufacturer, String model, int api) {
         this.manufacturer = manufacturer;
