@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d0282632e5bc454c8e51b4b5a69416ff)](https://app.codacy.com/manual/inouiw/AssetTrackerServiceAndroid?utm_source=github.com&utm_medium=referral&utm_content=inouiw/AssetTrackerServiceAndroid&utm_campaign=Badge_Grade_Dashboard)
 [![CircleCI](https://circleci.com/gh/inouiw/AssetTrackerServiceAndroid.svg?style=svg)](https://circleci.com/gh/inouiw/AssetTrackerServiceAndroid/tree/master)
 
 # Asset Tracker Service for Android
