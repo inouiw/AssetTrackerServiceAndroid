@@ -8,14 +8,14 @@ service cloud.firestore {
     }
     // Need to filter data while reading, see https://firebase.google.com/docs/firestore/security/rules-query
     match /devices/{deviceId}/location-measurements/{locId} {
-      allow get, delete: if rpath("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy;
+      allow get, delete: if path("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy;
       allow list: if path("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy && request.query.limit <= 8640;
       // Ensure that the createdBy field of the created document equals the authenticated user id.
       // In the Playground request.resource.data.createdBy is not of type path even if reference type is used.
       allow create: if request.resource.data.createdBy == path("databases/" + database + "/documents/users/" + request.auth.uid);
     }
     match /devices/{deviceId}/logs/{logId} {
-      allow get, delete: if rpath("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy;
+      allow get, delete: if path("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy;
       allow list: if path("databases/" + database + "/documents/users/" + request.auth.uid) == resource.data.createdBy && request.query.limit <= 8640;
       // Ensure that the createdBy field of the created document equals the authenticated user id.
       // In the Playground request.resource.data.createdBy is not of type path even if reference type is used.
